@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Interview System - Test Client</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .status.connected { background-color: #d4edda; color: #155724; }
+        .status.disconnected { background-color: #f8d7da; color: #721c24; }
+        .status.listening { background-color: #fff3cd; color: #856404; }
+        .status.processing { background-color: #cce5ff; color: #004085; }
+        .status.waiting { background-color: #e2e3e5; color: #383d41; }
+        .messages {
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 20px 0;
+            background-color: #fafafa;
+            border-radius: 5px;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 8px;
+            border-radius: 5px;
+        }
+        .message.interviewer {
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196f3;
+        }
+        .message.candidate {
+            background-color: #f3e5f5;
+            border-left: 4px solid #9c27b0;
+        }
+        .message.system {
+            background-color: #fff3e0;
+            border-left: 4px solid #ff9800;
+            font-style: italic;
+        }
+        .message.feedback {
+            background-color: #e8f5e8;
+            border-left: 4px solid #4caf50;
+            font-weight: bold;
+        }
+        button {
+            background-color: #2196f3;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #1976d2;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .interview-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .info-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #2196f3;
+        }
+        .info-card h4 {
+            margin: 0 0 8px 0;
+            color: #2196f3;
+        }
+        .info-card p {
+            margin: 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .interview-config {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 2px solid #e9ecef;
+        }
+        .config-step {
+            margin: 15px 0;
+        }
+        .config-step h4 {
+            color: #2196f3;
+            margin-bottom: 10px;
+        }
+        .radio-group, .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: 10px 0;
+        }
+        .radio-group label, .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        .radio-group label:hover, .checkbox-group label:hover {
+            background-color: #e3f2fd;
+        }
+        .form-group {
+            margin: 10px 0;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #2196f3;
+            box-shadow: 0 0 5px rgba(33, 150, 243, 0.3);
+        }
+        select {
+            background-color: white;
+            cursor: pointer;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        button.secondary {
+            background-color: #6c757d;
+        }
+        button.secondary:hover {
+            background-color: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 AI Interview System - Test Client</h1>
+        
+        <div class="status" id="connectionStatus">Disconnected</div>
+        
+        <!-- Interview Configuration Section -->
+        <div class="interview-config" id="configSection">
+            <h3>🎯 Interview Configuration</h3>
+            
+            <div class="config-step">
+                <h4>1. Select Interview Type:</h4>
+                <div class="radio-group">
+                    <label><input type="radio" name="interviewType" value="technical" checked> 🔧 Technical Interview</label>
+                    <label><input type="radio" name="interviewType" value="role_based"> 👔 Role-Based Interview</label>
+                </div>
+            </div>
+            
+            <!-- Technical Interview Options -->
+            <div class="config-step" id="technicalOptions">
+                <h4>2. Select Technical Categories:</h4>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" value="dbms" checked> 🗄️ Database Management Systems (DBMS)</label>
+                    <label><input type="checkbox" value="oops" checked> 🧩 Object-Oriented Programming (OOPs)</label>
+                    <label><input type="checkbox" value="system_design" checked> 🏗️ System Design</label>
+                    <label><input type="checkbox" value="dsa" checked> 📊 Data Structures & Algorithms (DSA)</label>
+                    <label><input type="checkbox" value="design" checked> 🎨 Software Design Patterns</label>
+                </div>
+                <button onclick="selectAllCategories()">Select All</button>
+                <button onclick="clearAllCategories()">Clear All</button>
+            </div>
+            
+            <!-- Role-Based Interview Options -->
+            <div class="config-step" id="roleOptions" style="display: none;">
+                <h4>2. Select Role Type:</h4>
+                <select id="roleTypeSelect">
+                    <option value="marketing">📈 Marketing</option>
+                    <option value="social_media" selected>📱 Social Media</option>
+                    <option value="sales">💼 Sales</option>
+                    <option value="design">🎨 Design</option>
+                    <option value="management">👨‍💼 Management</option>
+                    <option value="finance">💰 Finance</option>
+                    <option value="hr">🤝 Human Resources</option>
+                    <option value="operations">⚙️ Operations</option>
+                    <option value="customer_service">📞 Customer Service</option>
+                    <option value="content">✍️ Content Creation</option>
+                    <option value="general">🌐 General</option>
+                </select>
+                
+                <h4>3. Role Details:</h4>
+                <div class="form-group">
+                    <label>Role Title:</label>
+                    <input type="text" id="roleTitle" placeholder="e.g., Senior Social Media Manager">
+                </div>
+                <div class="form-group">
+                    <label>Company Name:</label>
+                    <input type="text" id="companyName" placeholder="e.g., TechCorp Inc" value="TechCorp">
+                </div>
+                <div class="form-group">
+                    <label>Specific Skills (comma-separated):</label>
+                    <input type="text" id="specificSkills" placeholder="e.g., Instagram, Analytics, Content Strategy">
+                </div>
+                <div class="form-group">
+                    <label>Interview Focus (comma-separated):</label>
+                    <input type="text" id="interviewFocus" placeholder="e.g., Social Strategy, Engagement, Analytics">
+                </div>
+            </div>
+            
+            <!-- Common Options -->
+            <div class="config-step">
+                <h4>Session Settings:</h4>
+                <div class="form-group">
+                    <label>Candidate Name:</label>
+                    <input type="text" id="candidateName" value="Test User">
+                </div>
+                <div class="form-group">
+                    <label>Session Duration (minutes):</label>
+                    <input type="number" id="sessionMinutes" value="10" min="5" max="60">
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button id="startBtn" onclick="startInterview()">🚀 Start Interview</button>
+            <button id="connectBtn" onclick="connectWebSocket()" disabled>🔗 Connect</button>
+            <button id="endBtn" onclick="endInterview()" disabled>⏹️ End Interview</button>
+        </div>
+        
+        <div class="interview-info">
+            <div class="info-card">
+                <h4>Interview ID</h4>
+                <p id="interviewId">-</p>
+            </div>
+            <div class="info-card">
+                <h4>Duration</h4>
+                <p id="duration">0:00</p>
+            </div>
+            <div class="info-card">
+                <h4>Exchanges</h4>
+                <p id="exchanges">0</p>
+            </div>
+            <div class="info-card">
+                <h4>Status</h4>
+                <p id="interviewStatus">Not Started</p>
+            </div>
+        </div>
+        
+        <div class="messages" id="messages"></div>
+        
+        <div style="text-align: center; margin-top: 20px; color: #666;">
+            <p><strong>Instructions:</strong></p>
+            <p>1. Select interview type: <strong>Technical</strong> (with categories) or <strong>Role-Based</strong> (with specific roles)</p>
+            <p>2. Configure your interview options based on the selected type</p>
+            <p>3. Click "🚀 Start Interview" to create a new session</p>
+            <p>4. Click "🔗 Connect" to join the interview via WebSocket</p>
+            <p>5. Speak clearly when prompted - the system will listen automatically</p>
+            <p>6. Click "⏹️ End Interview" when finished</p>
+            <br>
+            <p><strong>Technical Interview:</strong> Focus on DBMS, OOPs, System Design, DSA, and Design Patterns</p>
+            <p><strong>Role-Based Interview:</strong> Tailored questions for specific job roles and skills</p>
+        </div>
+    </div>
+
+    <script>
+        let websocket = null;
+        let currentInterviewId = null;
+        let startTime = null;
+        let durationTimer = null;
+
+        const API_BASE = 'http://127.0.0.1:8000';
+        const WS_BASE = 'ws://127.0.0.1:8000';
+
+        // Handle interview type selection
+        document.addEventListener('DOMContentLoaded', function() {
+            const interviewTypeRadios = document.querySelectorAll('input[name="interviewType"]');
+            const technicalOptions = document.getElementById('technicalOptions');
+            const roleOptions = document.getElementById('roleOptions');
+            
+            interviewTypeRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (this.value === 'technical') {
+                        technicalOptions.style.display = 'block';
+                        roleOptions.style.display = 'none';
+                    } else {
+                        technicalOptions.style.display = 'none';
+                        roleOptions.style.display = 'block';
+                        updateRoleDefaults();
+                    }
+                });
+            });
+
+            // Update role-specific defaults when role changes
+            document.getElementById('roleTypeSelect').addEventListener('change', updateRoleDefaults);
+        });
+
+        function updateRoleDefaults() {
+            const roleType = document.getElementById('roleTypeSelect').value;
+            const roleTitle = document.getElementById('roleTitle');
+            const specificSkills = document.getElementById('specificSkills');
+            const interviewFocus = document.getElementById('interviewFocus');
+
+            const defaults = {
+                'marketing': {
+                    title: 'Marketing Specialist',
+                    skills: 'Digital Marketing, Analytics, Campaign Management, SEO',
+                    focus: 'Marketing Strategy, Campaign Analysis, Customer Insights'
+                },
+                'social_media': {
+                    title: 'Social Media Manager',
+                    skills: 'Instagram, LinkedIn, Content Creation, Analytics, Community Management',
+                    focus: 'Social Strategy, Content Planning, Engagement Metrics'
+                },
+                'sales': {
+                    title: 'Sales Representative',
+                    skills: 'CRM, Lead Generation, Negotiation, Presentation',
+                    focus: 'Sales Process, Relationship Building, Closing Techniques'
+                },
+                'design': {
+                    title: 'UX/UI Designer',
+                    skills: 'Adobe Creative Suite, Figma, User Research, Prototyping',
+                    focus: 'Design Process, User Experience, Creative Problem Solving'
+                },
+                'management': {
+                    title: 'Team Manager',
+                    skills: 'Leadership, Team Building, Performance Management, Strategic Planning',
+                    focus: 'Leadership Style, Team Management, Decision Making'
+                },
+                'finance': {
+                    title: 'Financial Analyst',
+                    skills: 'Financial Analysis, Excel, Budgeting, Forecasting',
+                    focus: 'Financial Analysis, Budgeting, Risk Assessment'
+                },
+                'hr': {
+                    title: 'HR Coordinator',
+                    skills: 'Recruitment, Employee Relations, HRIS, Compliance',
+                    focus: 'Talent Acquisition, Employee Engagement, HR Policies'
+                },
+                'operations': {
+                    title: 'Operations Manager',
+                    skills: 'Process Improvement, Project Management, Data Analysis, Quality Control',
+                    focus: 'Process Optimization, Quality Management, Efficiency'
+                },
+                'customer_service': {
+                    title: 'Customer Service Representative',
+                    skills: 'Communication, Problem Solving, CRM, Conflict Resolution',
+                    focus: 'Customer Relations, Problem Resolution, Service Excellence'
+                },
+                'content': {
+                    title: 'Content Creator',
+                    skills: 'Writing, Content Strategy, Social Media, SEO',
+                    focus: 'Content Strategy, Audience Engagement, Brand Voice'
+                },
+                'general': {
+                    title: 'Professional',
+                    skills: 'Communication, Problem Solving, Team Work, Adaptability',
+                    focus: 'Professional Skills, Experience, Career Goals'
+                }
+            };
+
+            const defaultData = defaults[roleType] || defaults['general'];
+            if (!roleTitle.value) roleTitle.value = defaultData.title;
+            if (!specificSkills.value) specificSkills.value = defaultData.skills;
+            if (!interviewFocus.value) interviewFocus.value = defaultData.focus;
+        }
+
+        function selectAllCategories() {
+            document.querySelectorAll('#technicalOptions input[type="checkbox"]').forEach(cb => cb.checked = true);
+        }
+
+        function clearAllCategories() {
+            document.querySelectorAll('#technicalOptions input[type="checkbox"]').forEach(cb => cb.checked = false);
+        }
+
+        function updateStatus(message, type = 'disconnected') {
+            const statusElement = document.getElementById('connectionStatus');
+            const timestamp = new Date().toLocaleTimeString();
+            statusElement.textContent = `[${timestamp}] ${message}`;
+            statusElement.className = `status ${type}`;
+            
+            console.log('Status updated:', message, type);
+        }
+
+        function addMessage(content, type = 'system') {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            
+            const timestamp = new Date().toLocaleTimeString();
+            messageDiv.innerHTML = `<strong>[${timestamp}]</strong> ${content}`;
+            
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        async function startInterview() {
+            try {
+                updateStatus('Creating interview session...', 'listening');
+                
+                const interviewType = document.querySelector('input[name="interviewType"]:checked').value;
+                let endpoint = '';
+                let requestBody = {
+                    session_minutes: parseInt(document.getElementById('sessionMinutes').value) || 10,
+                    candidate_name: document.getElementById('candidateName').value || 'Test User'
+                };
+
+                if (interviewType === 'technical') {
+                    // Technical interview
+                    endpoint = '/interview/technical/start';
+                    const selectedCategories = Array.from(document.querySelectorAll('#technicalOptions input[type="checkbox"]:checked'))
+                        .map(cb => cb.value);
+                    
+                    if (selectedCategories.length === 0) {
+                        alert('Please select at least one technical category!');
+                        return;
+                    }
+                    
+                    requestBody.interview_type = 'technical';
+                    requestBody.technical_categories = selectedCategories;
+                    
+                    addMessage(`Selected categories: ${selectedCategories.map(c => c.toUpperCase()).join(', ')}`, 'system');
+                } else {
+                    // Role-based interview
+                    endpoint = '/interview/role-based/start';
+                    const roleType = document.getElementById('roleTypeSelect').value;
+                    const roleTitle = document.getElementById('roleTitle').value;
+                    const company = document.getElementById('companyName').value || 'our company';
+                    const specificSkills = document.getElementById('specificSkills').value
+                        .split(',').map(s => s.trim()).filter(s => s);
+                    const interviewFocus = document.getElementById('interviewFocus').value
+                        .split(',').map(s => s.trim()).filter(s => s);
+                    
+                    requestBody.interview_type = 'role_based';
+                    requestBody.role_type = roleType;
+                    requestBody.role_title = roleTitle;
+                    requestBody.company = company;
+                    requestBody.specific_skills = specificSkills;
+                    requestBody.interview_focus = interviewFocus;
+                    
+                    addMessage(`Role: ${roleTitle} at ${company}`, 'system');
+                    addMessage(`Skills: ${specificSkills.join(', ')}`, 'system');
+                    addMessage(`Focus: ${interviewFocus.join(', ')}`, 'system');
+                }
+
+                const response = await fetch(`${API_BASE}${endpoint}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    currentInterviewId = data.interview_id;
+                    document.getElementById('interviewId').textContent = currentInterviewId;
+                    document.getElementById('interviewStatus').textContent = 'Created';
+                    
+                    // Hide configuration section and show controls
+                    document.getElementById('configSection').style.display = 'none';
+                    document.getElementById('startBtn').disabled = true;
+                    document.getElementById('connectBtn').disabled = false;
+                    
+                    addMessage(`${interviewType.charAt(0).toUpperCase() + interviewType.slice(1)} interview session created: ${currentInterviewId}`, 'system');
+                    if (data.data.available_categories) {
+                        addMessage(`Available categories loaded: ${Object.keys(data.data.available_categories).length} categories`, 'system');
+                    }
+                    updateStatus('Interview created - Click Connect to join', 'listening');
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                addMessage(`Error starting interview: ${error.message}`, 'system');
+                updateStatus('Error creating interview', 'disconnected');
+            }
+        }
+
+        function connectWebSocket() {
+            if (!currentInterviewId) {
+                addMessage('No interview session available', 'system');
+                return;
+            }
+
+            updateStatus('Connecting...', 'listening');
+            
+            websocket = new WebSocket(`${WS_BASE}/interview/${currentInterviewId}/connect`);
+            
+            websocket.onopen = function(event) {
+                updateStatus('Connected to interview', 'connected');
+                document.getElementById('connectBtn').disabled = true;
+                document.getElementById('endBtn').disabled = false;
+                document.getElementById('interviewStatus').textContent = 'Active';
+                
+                startTime = Date.now();
+                startDurationTimer();
+                
+                addMessage('Connected to interview session', 'system');
+            };
+            
+            websocket.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                handleWebSocketMessage(data);
+            };
+            
+            websocket.onclose = function(event) {
+                updateStatus('Disconnected from interview', 'disconnected');
+                document.getElementById('connectBtn').disabled = false;
+                document.getElementById('endBtn').disabled = true;
+                document.getElementById('interviewStatus').textContent = 'Disconnected';
+                
+                stopDurationTimer();
+                
+                if (event.code === 4004) {
+                    addMessage('Interview not found', 'system');
+                } else {
+                    addMessage('Connection closed', 'system');
+                }
+            };
+            
+            websocket.onerror = function(error) {
+                updateStatus('Connection error', 'disconnected');
+                addMessage('WebSocket error occurred', 'system');
+            };
+        }
+
+        function handleWebSocketMessage(data) {
+            const type = data.type;
+            const message = data.message;
+            
+            // Debug: log all messages
+            console.log('WebSocket message received:', type, data);
+            
+            switch(type) {
+                case 'interview_started':
+                    addMessage(`Interview started - Duration: ${data.duration_minutes} minutes`, 'system');
+                    break;
+                    
+                case 'interviewer_question':
+                    addMessage(`<strong>Question ${data.round}:</strong> ${message}`, 'interviewer');
+                    updateStatus('🤔 Waiting for your response...', 'waiting');
+                    break;
+                    
+                case 'listening':
+                    updateStatus('🎙️ Listening for your response...', 'listening');
+                    addMessage('🎙️ Started listening...', 'system');
+                    break;
+                    
+                case 'processing':
+                    updateStatus('🔄 Processing your response...', 'processing');
+                    addMessage(`Processing response (${data.duration.toFixed(1)}s audio)`, 'system');
+                    break;
+                    
+                case 'candidate_response':
+                    addMessage(`<strong>Your response:</strong> ${data.transcript}`, 'candidate');
+                    updateExchangeCount(data.round);
+                    break;
+                    
+                case 'interviewer_nudge':
+                    addMessage(`<strong>Interviewer:</strong> ${message}`, 'interviewer');
+                    break;
+                    
+                case 'transcription_failed':
+                    addMessage(`<strong>System:</strong> ${message}`, 'system');
+                    break;
+                    
+                case 'tts_starting':
+                    updateStatus('🔊 Playing audio response...', 'processing');
+                    addMessage('🔊 Playing audio response...', 'system');
+                    break;
+                    
+                case 'tts_fallback':
+                    updateStatus('🔄 Using backup audio system...', 'processing');
+                    addMessage('🔄 Switching to backup audio system...', 'system');
+                    break;
+                    
+                case 'tts_completed':
+                    updateStatus('🎙️ Ready for your response', 'waiting');
+                    addMessage('🎙️ Audio complete - Ready for your response', 'system');
+                    break;
+                    
+                case 'interview_ended':
+                    addMessage('Interview session completed', 'system');
+                    updateStatus('Interview completed', 'disconnected');
+                    document.getElementById('interviewStatus').textContent = 'Completed';
+                    break;
+                    
+                case 'final_feedback':
+                    addMessage(`<strong>📋 FINAL FEEDBACK:</strong><br><br>${data.feedback}`, 'feedback');
+                    if (data.summary) {
+                        addMessage(`<strong>Summary:</strong> ${data.summary.total_exchanges} exchanges in ${data.summary.duration_minutes.toFixed(1)} minutes`, 'system');
+                    }
+                    updateStatus('✅ Feedback received', 'connected');
+                    break;
+                    
+                case 'pong':
+                    // Handle ping/pong if needed
+                    break;
+                    
+                default:
+                    addMessage(`Unknown message type: ${type}`, 'system');
+            }
+        }
+
+        function updateExchangeCount(count) {
+            document.getElementById('exchanges').textContent = count;
+        }
+
+        function startDurationTimer() {
+            durationTimer = setInterval(() => {
+                if (startTime) {
+                    const elapsed = Date.now() - startTime;
+                    const minutes = Math.floor(elapsed / 60000);
+                    const seconds = Math.floor((elapsed % 60000) / 1000);
+                    document.getElementById('duration').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                }
+            }, 1000);
+        }
+
+        function stopDurationTimer() {
+            if (durationTimer) {
+                clearInterval(durationTimer);
+                durationTimer = null;
+            }
+        }
+
+        async function endInterview() {
+            if (!currentInterviewId) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/interview/${currentInterviewId}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                addMessage(`Interview ended: ${data.message}`, 'system');
+                
+                if (websocket) {
+                    websocket.close();
+                }
+                
+                // Reset UI
+                resetInterviewUI();
+                
+            } catch (error) {
+                addMessage(`Error ending interview: ${error.message}`, 'system');
+            }
+        }
+
+        function resetInterviewUI() {
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('connectBtn').disabled = true;
+            document.getElementById('endBtn').disabled = true;
+            document.getElementById('interviewStatus').textContent = 'Ended';
+            document.getElementById('configSection').style.display = 'block';
+            
+            currentInterviewId = null;
+            stopDurationTimer();
+        }
+
+        // Check server health and load available options on page load
+        window.onload = async function() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                addMessage(`Server status: ${data.status}`, 'system');
+                addMessage(`API key configured: ${data.api_key_configured}`, 'system');
+                
+                // Load technical categories
+                const categoriesResponse = await fetch(`${API_BASE}/interview/categories`);
+                const categoriesData = await categoriesResponse.json();
+                addMessage(`Loaded ${Object.keys(categoriesData.categories).length} technical categories`, 'system');
+                
+                // Load available roles
+                const rolesResponse = await fetch(`${API_BASE}/interview/roles`);
+                const rolesData = await rolesResponse.json();
+                addMessage(`Loaded ${Object.keys(rolesData.roles).length} role types`, 'system');
+                
+                // Initialize role defaults
+                updateRoleDefaults();
+            } catch (error) {
+                addMessage('Could not connect to server', 'system');
+            }
+        };
+    </script>
+</body>
+</html>
