@@ -10,6 +10,9 @@
     "export": "next export"
   },
   "dependencies": {
+    "@monaco-editor/react": "^4.7.0",
+    "framer-motion": "^12.23.22",
+    "lucide-react": "^0.544.0",
     "next": "^14.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"

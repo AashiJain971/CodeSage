@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import './Navbar.css'
 
-const Navbar = () => {
+const Navbar = ({ onTakeInterview }) => {
   const [isScrolled, setIsScrolled] = useState(false)
 
   useEffect(() => {
@@ -15,7 +15,7 @@ const Navbar = () => {
 
   const navLinks = [
     { href: '#home', label: 'Home' },
-    { href: '#interview', label: 'Take Interview' },
+    { href: '#interview', label: 'Take Interview', onClick: onTakeInterview },
     { href: '#past-interviews', label: 'Past Interviews' },
     { href: '#results', label: 'Results' },
     { href: '#upload', label: 'Upload Resume' }
@@ -31,7 +31,12 @@ const Navbar = () => {
           
           <div className="navbar-links">
             {navLinks.map((link, index) => (
-              <a key={index} href={link.href} className="nav-link">
+              <a 
+                key={index} 
+                href={link.href} 
+                className="nav-link"
+                onClick={link.onClick ? (e) => { e.preventDefault(); link.onClick(); } : undefined}
+              >
                 {link.label}
               </a>
             ))}
