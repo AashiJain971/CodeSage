@@ -1,8 +1,13 @@
 import { useState, useEffect } from 'react'
 import './Navbar.css'
 
-const Navbar = ({ onTakeInterview }) => {
+const Navbar = ({ onTakeInterview, onViewResults, onGoHome }) => {
   const [isScrolled, setIsScrolled] = useState(false)
+
+  // Handle undefined prop functions with defaults
+  const handleTakeInterview = onTakeInterview || (() => console.log('Take Interview clicked'))
+  const handleViewResults = onViewResults || (() => console.log('Results clicked'))
+  const handleGoHome = onGoHome || (() => console.log('Home clicked'))
 
   useEffect(() => {
     const handleScroll = () => {
@@ -14,10 +19,10 @@ const Navbar = ({ onTakeInterview }) => {
   }, [])
 
   const navLinks = [
-    { href: '#home', label: 'Home' },
-    { href: '#interview', label: 'Take Interview', onClick: onTakeInterview },
+    { href: '#home', label: 'Home', onClick: handleGoHome },
+    { href: '#interview', label: 'Take Interview', onClick: handleTakeInterview },
     { href: '#past-interviews', label: 'Past Interviews' },
-    { href: '#results', label: 'Results' },
+    { href: '#results', label: 'Results', onClick: handleViewResults },
     { href: '#upload', label: 'Upload Resume' }
   ]
 

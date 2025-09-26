@@ -9,11 +9,12 @@ import Features from './components/Features'
 import Footer from './components/Footer'
 import InterviewSelection from './components/InterviewSelection'
 import InterviewSession from './components/InterviewSession'
+import ResultsPage from './components/ResultsPage'
 
 function App() {
   const [showIntro, setShowIntro] = useState(true)
   const [showMain, setShowMain] = useState(false)
-  const [currentView, setCurrentView] = useState('landing') // 'landing', 'selection', 'session'
+  const [currentView, setCurrentView] = useState('landing') // 'landing', 'selection', 'session', 'results'
   const [selectedInterview, setSelectedInterview] = useState(null)
   const [introFading, setIntroFading] = useState(false)
 
@@ -40,6 +41,14 @@ function App() {
     setCurrentView('selection')
   }
 
+  const navigateToResults = () => {
+    setCurrentView('results')
+  }
+
+  const navigateToHome = () => {
+    setCurrentView('landing')
+  }
+
   return (
     <div className="app">
       {showIntro && (
@@ -52,7 +61,11 @@ function App() {
         <div className="main-content fade-in-fast">
           {currentView === 'landing' && (
             <>
-              <Navbar onTakeInterview={navigateToInterviews} />
+              <Navbar 
+                onTakeInterview={navigateToInterviews} 
+                onViewResults={navigateToResults}
+                onGoHome={navigateToHome}
+              />
               <Hero onTakeInterview={navigateToInterviews} />
               <Features />
               <Footer />
@@ -68,6 +81,17 @@ function App() {
               interview={selectedInterview} 
               onEndInterview={handleEndInterview} 
             />
+          )}
+
+          {currentView === 'results' && (
+            <>
+              <Navbar 
+                onTakeInterview={navigateToInterviews} 
+                onViewResults={navigateToResults}
+                onGoHome={navigateToHome}
+              />
+              <ResultsPage />
+            </>
           )}
         </div>
       )}

@@ -1,6 +1,5 @@
-// pages/results.js
+// ResultsPage.jsx - Interview Results Dashboard
 import { useState } from 'react';
-import Head from 'next/head';
 import { 
   BarChart, Bar, LineChart, Line, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell 
@@ -51,20 +50,23 @@ const styles = {
     fontSize: '24px',
     fontWeight: 'bold',
     color: 'white',
-    border: '3px solid rgba(255, 255, 255, 0.3)',
   },
   candidateInfo: {
-    color: 'white',
+    display: 'flex',
+    flexDirection: 'column',
   },
   name: {
     margin: '0',
     fontSize: '28px',
-    fontWeight: '600',
+    fontWeight: '700',
+    color: 'white',
+    lineHeight: '1.2',
   },
   role: {
     margin: '4px 0 0 0',
-    color: 'rgba(255, 255, 255, 0.8)',
     fontSize: '16px',
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontWeight: '400',
   },
   summary: {
     maxWidth: '400px',
@@ -73,36 +75,38 @@ const styles = {
     lineHeight: '1.5',
   },
   tabNav: {
-    background: 'rgba(255, 255, 255, 0.95)',
-    borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
+    background: 'rgba(255, 255, 255, 0.1)',
+    backdropFilter: 'blur(10px)',
+    borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
+    padding: '0',
     marginBottom: '32px',
   },
   tabContainer: {
     maxWidth: '1200px',
     margin: '0 auto',
-    padding: '0 20px',
     display: 'flex',
     gap: '8px',
+    padding: '0 20px',
   },
   tab: {
-    padding: '16px 24px',
-    background: 'none',
+    background: 'transparent',
     border: 'none',
+    color: 'rgba(255, 255, 255, 0.7)',
+    padding: '16px 24px',
     fontSize: '14px',
     fontWeight: '500',
-    color: '#666',
     cursor: 'pointer',
+    borderBottom: '2px solid transparent',
     transition: 'all 0.3s ease',
-    borderBottom: '3px solid transparent',
   },
   activeTab: {
-    color: '#667eea',
-    borderBottomColor: '#667eea',
-    background: 'rgba(102, 126, 234, 0.1)',
+    color: 'white',
+    borderBottomColor: '#feca57',
+    background: 'rgba(255, 255, 255, 0.1)',
   },
   overviewGrid: {
     display: 'grid',
-    gridTemplateColumns: '1fr 2fr',
+    gridTemplateColumns: '1fr 1fr',
     gap: '24px',
     marginBottom: '32px',
   },
@@ -110,19 +114,19 @@ const styles = {
     background: 'white',
     borderRadius: '12px',
     padding: '24px',
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
     textAlign: 'center',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
   },
   scoreTitle: {
     margin: '0 0 20px 0',
-    fontSize: '18px',
+    fontSize: '20px',
     fontWeight: '600',
     color: '#333',
   },
   scoreCircle: {
     position: 'relative',
+    margin: '20px 0',
     display: 'inline-block',
-    marginBottom: '16px',
   },
   scoreText: {
     position: 'absolute',
@@ -132,14 +136,17 @@ const styles = {
     textAlign: 'center',
   },
   score: {
-    fontSize: '36px',
-    fontWeight: 'bold',
-    color: '#333',
     display: 'block',
+    fontSize: '32px',
+    fontWeight: '700',
+    color: '#333',
+    lineHeight: '1',
   },
   scoreLabel: {
-    fontSize: '14px',
+    display: 'block',
+    fontSize: '12px',
     color: '#666',
+    marginTop: '4px',
   },
   skillsCard: {
     background: 'white',
@@ -282,60 +289,11 @@ const styles = {
   fullWidth: {
     gridColumn: '1 / -1',
   },
-  // Responsive styles
-  '@media (max-width: 768px)': {
-    mainContent: {
-      padding: '0 16px 32px',
-    },
-    headerContent: {
-      flexDirection: 'column',
-      textAlign: 'center',
-      padding: '0 16px',
-    },
-    avatarSection: {
-      flexDirection: 'column',
-      gap: '12px',
-    },
-    name: {
-      fontSize: '24px',
-    },
-    tabContainer: {
-      padding: '0 16px',
-      overflowX: 'auto',
-      gap: '4px',
-    },
-    tab: {
-      padding: '12px 16px',
-      fontSize: '13px',
-      whiteSpace: 'nowrap',
-    },
-    overviewGrid: {
-      gridTemplateColumns: '1fr',
-      gap: '20px',
-    },
-    chartsGrid: {
-      gridTemplateColumns: '1fr',
-      gap: '20px',
-    },
-    swotGrid: {
-      gridTemplateColumns: '1fr',
-      gridTemplateRows: 'repeat(4, auto)',
-    },
-    chartCard: {
-      height: '250px',
-    },
-  },
 };
 
 // Helper function to apply responsive styles
 const getStyle = (styleKey, isMobile = false) => {
   const baseStyle = styles[styleKey];
-  const responsiveKey = `@media (max-width: 768px)`;
-  
-  if (isMobile && styles[responsiveKey] && styles[responsiveKey][styleKey]) {
-    return { ...baseStyle, ...styles[responsiveKey][styleKey] };
-  }
-  
   return baseStyle;
 };
 
@@ -669,16 +627,6 @@ export default function ResultsPage() {
   const [activeTab, setActiveTab] = useState('overview');
   const [isMobile, setIsMobile] = useState(false);
 
-  // Check if mobile on mount and resize
-  if (typeof window !== 'undefined') {
-    useState(() => {
-      const checkMobile = () => setIsMobile(window.innerWidth <= 768);
-      checkMobile();
-      window.addEventListener('resize', checkMobile);
-      return () => window.removeEventListener('resize', checkMobile);
-    });
-  }
-
   const renderContent = () => {
     switch (activeTab) {
       case 'skills':
@@ -702,21 +650,14 @@ export default function ResultsPage() {
   };
 
   return (
-    <>
-      <Head>
-        <title>Interview Results - AI Interview Platform</title>
-        <meta name="description" content="Detailed interview results and analysis" />
-      </Head>
+    <div style={getStyle('container')}>
+      <Header candidate={mockData.candidate} />
       
-      <div style={getStyle('container')}>
-        <Header candidate={mockData.candidate} />
-        
-        <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
-        
-        <main style={getStyle('mainContent', isMobile)}>
-          {renderContent()}
-        </main>
-      </div>
-    </>
+      <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+      
+      <main style={getStyle('mainContent', isMobile)}>
+        {renderContent()}
+      </main>
+    </div>
   );
 }
