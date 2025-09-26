@@ -59,6 +59,9 @@ export function wsUrl(path = '/ws') {
 
 // Interview endpoints
 export const interviewAPI = {
+  // Get available interview categories/types
+  getCategories: () => apiFetch('/api/interviews/options'),
+  
   // Start interview session
   startInterview: (data) => apiFetch('/interview/start', {
     method: 'POST',
@@ -75,7 +78,7 @@ export const interviewAPI = {
   }),
   
   // Get technical categories
-  getCategories: () => apiFetch('/interview/categories'),
+  getTechnicalCategories: () => apiFetch('/interview/categories'),
 };
 
 // WebSocket connection helper

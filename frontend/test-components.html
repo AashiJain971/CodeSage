@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Component Test - CodeSage Interview Platform</title>
+    <style>
+        /* Import our CSS styles to test them */
+        @import url('./src/components/InterviewSelection.css');
+        @import url('./src/components/InterviewSession.css');
+        
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .test-container {
+            padding: 20px;
+        }
+        
+        .test-section {
+            margin-bottom: 40px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        
+        h1, h2 {
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>CodeSage Interview Platform - Component Tests</h1>
+        
+        <div class="test-section">
+            <h2>Interview Selection Card Test</h2>
+            <div class="interviews-grid" style="max-width: 800px;">
+                <div class="interview-card">
+                    <div class="interview-icon">💼</div>
+                    <div class="interview-content">
+                        <h3 class="interview-title">Technical Interview</h3>
+                        <p class="interview-description">
+                            Test your coding skills with algorithm and data structure problems
+                        </p>
+                        <div class="interview-tags">
+                            <span class="interview-tag">Coding</span>
+                            <span class="interview-tag">Algorithms</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="interview-card">
+                    <div class="interview-icon">🎤</div>
+                    <div class="interview-content">
+                        <h3 class="interview-title">HR Interview</h3>
+                        <p class="interview-description">
+                            Behavioral questions and company culture fit assessment
+                        </p>
+                        <div class="interview-tags">
+                            <span class="interview-tag">Behavioral</span>
+                            <span class="interview-tag">Culture Fit</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="interview-card">
+                    <div class="interview-icon">🎨</div>
+                    <div class="interview-content">
+                        <h3 class="interview-title">Design Interview</h3>
+                        <p class="interview-description">
+                            System design and architecture problem solving
+                        </p>
+                        <div class="interview-tags">
+                            <span class="interview-tag">System Design</span>
+                            <span class="interview-tag">Architecture</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Button Styles Test</h2>
+            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                <button class="interview-button">Start Interview</button>
+                <button class="back-button">← Back to Dashboard</button>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Interview Session Controls Test</h2>
+            <div class="video-controls" style="display: inline-flex;">
+                <button class="control-btn">📹</button>
+                <button class="control-btn">🎤</button>
+                <button class="control-btn">🖥️</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Add some basic interactivity to test hover effects
+        document.querySelectorAll('.interview-card').forEach(card => {
+            card.addEventListener('click', () => {
+                alert(`Clicked on: ${card.querySelector('.interview-title').textContent}`)
+            })
+        })
+    </script>
+</body>
+</html>
